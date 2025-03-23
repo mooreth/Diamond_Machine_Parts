@@ -1,0 +1,62 @@
+# Start from the minimized and heatedup restart file
+read_restart gripper_pickup.init.restart    
+
+# set groups
+group gripperfree type 1 2
+group grippercenter type 3 4
+group gripperforce type 5 6
+group gripperbase type 7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H 
+
+# Conversion Factors
+# 1 nN = 1.602 eV/Angstrom = 1.602 / 23.06035 kcal/mol/ang
+
+#freeze the base atoms
+fix anchorbase gripperbase setforce 0.0 0.0 0.0
+velocity gripperbase set 0.0 0.0 0.0
+
+# Equilibrate to 6K
+fix nve all nve
+timestep 0.00025
+# bring the temp of all the free atoms to 6K
+fix freefix gripperfree temp/berendsen 6. 6. 0.25
+
+#move center and rods down in neg Y 
+fix movecenter_fix_nY grippercenter move linear 0.0 -1.0 0.0
+fix moverods_fix_nY gripperforce   move linear 0.0 -1.0 0.0
+dump mydmpZ all atom 1000 gripper_pickup_move_down_S.lammpstrj
+thermo 100
+run 7500 
+unfix movecenter_fix_nY
+unfix moverods_fix_nY
+undump mydmpZ
+
+#freeze center atoms
+fix anchorcenter_fix grippercenter setforce 0.0 0.0 0.0
+
+#apply a SMALLER force in the negative Y direction to the rod atoms
+fix pushdown gripperforce addforce 0.000 -.05 0.000 
+dump mydmp0 all atom 1000 gripper_pickup_grab_S.lammpstrj
+thermo 100
+run 3000 
+undump mydmp0
+
+#unfreeze center atoms
+unfix anchorcenter_fix
+
+#move gripperup in pos Y 
+fix movecenter_fix_pY grippercenter move linear 0.0 1.0 0.0
+dump mydmp1 all atom 1000 gripper_pickup_move_Y_S.lammpstrj
+thermo 100
+run 60000 
+unfix movecenter_fix_pY
+undump mydmp1
+
+#move gripperup in X
+fix movecenter_fix_X grippercenter move linear 1.5 0.0 0.0
+dump mydmp2 all atom 1000 gripper_pickup_move_X_S.lammpstrj
+thermo 100
+run 40000
