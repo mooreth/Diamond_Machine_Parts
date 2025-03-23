@@ -1,0 +1,38 @@
+# Initialisation
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# Start from the minimized and heatedup restart file
+read_restart TEMP_gear_train_1.init.restart 
+
+# set groups
+group free type 1 2
+group anchor type 3 4   
+group moveme type 5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H
+
+#freeze the sleeve anchor atoms
+fix anchorfix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#add the MD part
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the top and bottom group to 6K
+fix thermo_free free temp/berendsen 90. 90. 0.25
+
+#rotate around z
+fix rotate_fix moveme move rotate -77.154 -4.134 -1.521 0.0 0.0 1.0 250 
+
+#output
+dump gear_train_1_traj all atom 100000 dump_gear_train_1.lammpstrj
+
+thermo 5000
+run 2000000 #1000 pico seconds, 1 nanosecond, 2GHz frequency
+
