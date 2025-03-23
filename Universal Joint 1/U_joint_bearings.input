@@ -1,0 +1,47 @@
+# Initialisation
+variable myfile string Ujoint_after_1st_spin
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# Start from the minimized and heatedup restart file
+read_restart TEMP_U_joint_bearings.init.restart 
+
+#set groups
+group free type 1 2
+group top type 3 
+group bottom type 4
+group bottombearing type 5 6
+group topbearing  type 7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C C C H C H
+
+#add the MD part
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the top and bottom group to 6K
+fix thermo_free free temp/berendsen 6. 6. 0.25
+
+#anchor the bushings
+#freeze the topbearing
+fix anchortopbearing topbearing setforce 0.0 0.0 0.0
+velocity topbearing set 0.0 0.0 0.0
+
+#freeze the bottombearing
+fix anchorbottombearing bottombearing setforce 0.0 0.0 0.0
+velocity bottombearing set 0.0 0.0 0.0
+
+#rotate around z
+fix rotatetop_fix top move rotate -0.229 -0.001 -72.58 0.0 0.0 1.0 500 
+fix rotatebottom_fix bottom move rotate -0.039 0.258 72.493 0.0 0.0 1.0 500 
+
+#output
+dump sprin_traj all atom 80000 dump_U_joint_bearings_1st_spin.lammpstrj
+#dump movie_dump all movie 1000 u575_spin.mpg type type size 640 480
+thermo 100
+run 4000000 #1000 pico seconds, 1 nanosecond, 2GHz frequency
+write_restart ${myfile}.init.restart 

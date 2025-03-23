@@ -1,0 +1,46 @@
+# Initialisation
+variable T equal 300 # this is defining a variable names T with the value of 300, later to be the temperature
+variable myfile string TEMP_U_joint_bearings
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_data U_joint_bearings.data
+
+#set groups
+group free type 1 2
+group top type 3 
+group bottom type 4
+group bottombearing type 5 6
+group topbearing  type 7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C C C H C H
+
+#Minimize before bringing to temperature
+
+#anchor the bushings
+#freeze the topbearing
+fix anchortopbearing topbearing setforce 0.0 0.0 0.0
+velocity topbearing set 0.0 0.0 0.0
+
+#freeze the bottombearing
+fix anchorbottombearing bottombearing setforce 0.0 0.0 0.0
+velocity bottombearing set 0.0 0.0 0.0
+
+minimize 1.0e-4 1.0e-6 1000 10000
+
+# Equilibrate to 6K
+fix nve all nve
+timestep 0.00025
+
+# bring the temp of all the free atoms 6K
+fix freefix free temp/berendsen 6. 6. 0.25
+thermo 100 #print thermo data to the terminal every 100 steps
+#dump bend_traj all atom 1000 TRJ_bearings_thermo.lammpstrj
+run 10000 
+write_restart ${myfile}.init.restart 
+
