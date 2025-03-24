@@ -1,0 +1,54 @@
+# Initialisation
+variable T equal 6 # this is defining a variable names T with the value of 6K, later to be the temperature
+variable myfile string gripper_3F
+
+#log ${myfile}.init.log
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_data gripper_3F_hex.data
+
+# set groups
+group gripperfree type 1 2
+group grippercenter type 3 4
+group gripperforce type 5 6
+group gripperbase type 7 8
+
+
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H 
+
+# Conversion Factors
+# 1 eV = 23.06035 kcal/mol
+#variable econv equal 23.06035
+variable econv equal 1.0
+# 1 nN = 1.602 eV/Angstrom = 1.602 / 23.06035 kcal/mol/ang
+
+
+#freeze the anchor atoms
+fix centerfix grippercenter setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity grippercenter set 0.0 0.0 0.0 #setforce deals only with accerlations, not velocities 
+
+fix basefix gripperbase setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity gripperbase set 0.0 0.0 0.0 #setforce deals only with accerlations, not velocities 
+
+
+#Minimize before bringing to temperature
+
+minimize 1.0e-4 1.0e-6 1000 10000
+
+# Equilibrate to 6K
+fix nve all nve
+timestep 0.00025
+# bring the temp of all the free atoms to 6K
+fix freefix gripperfree temp/berendsen 6. 6. 0.25
+dump mydmp all atom 1000 dump.lammpstrj
+thermo 100 #print thermo data to the terminal every 100 steps
+run 5000 
+write_restart ${myfile}.init.restart 
+

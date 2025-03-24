@@ -1,0 +1,91 @@
+# Start from the minimized and heatedup restart file
+read_restart gripper_3F_hex.init.restart    
+
+# set groups
+group gripperfree type 1 2
+group grippercenter type 3 4
+group gripperforce type 5 6
+group gripperbase type 7 8
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H 
+
+# Conversion Factors
+# 1 nN = 1.602 eV/Angstrom = 1.602 / 23.06035 kcal/mol/ang
+
+#freeze the base atoms
+fix anchorbase gripperbase setforce 0.0 0.0 0.0
+velocity gripperbase set 0.0 0.0 0.0
+
+# Equilibrate to 6K
+fix nve all nve
+timestep 0.00025
+# bring the temp of all the free atoms to 6K
+fix freefix gripperfree temp/berendsen 6. 6. 0.25
+
+#move center in neg Y 
+fix movecenter_fix_nY grippercenter move linear 0.0 -1.0 0.0
+fix moverods_fix_nY gripperforce   move linear 0.0 -1.0 0.0
+dump mydmpZ all atom 10000 gripper_pickup_move_down.lammpstrj
+thermo 100
+run 40000 
+unfix movecenter_fix_nY
+unfix moverods_fix_nY
+undump mydmpZ
+
+#freeze center atoms
+fix anchorcenter_fix grippercenter setforce 0.0 0.0 0.0
+
+#apply a SMALLER force in the negative Y direction to the rod atoms
+fix pushdown gripperforce addforce 0.000 -.03 0.000 
+dump mydmp0 all atom 1000 gripper_pickup_grab.lammpstrj
+thermo 100
+run 3000 
+undump mydmp0
+
+#unfreeze center atoms
+unfix anchorcenter_fix
+
+#move gripper up in pos Y 
+fix movecenter_fix_pY grippercenter move linear 0.0 1.0 0.0
+dump mydmp1 all atom 10000 gripper_pickup_move_upY.lammpstrj
+thermo 100
+run 80000 
+unfix movecenter_fix_pY
+undump mydmp1
+
+#move gripperup in X
+fix movecenter_fix_X grippercenter move linear 1.5 0.0 0.0
+dump mydmp2 all atom 10000 gripper_pickup_move_X.lammpstrj
+thermo 100
+run 140000
+unfix movecenter_fix_X
+undump mydmp2
+
+#move gripperup in Neg Y to socket
+fix movecenter_fix_nY2 grippercenter move linear 0.0 -1.0 0.0
+dump mydmp3 all atom 10000 gripper_pickup_move_negY_2.lammpstrj
+thermo 100
+run 70000
+#Write restart here to try again
+write_restart AT_SOCKET.init.restart
+unfix movecenter_fix_nY2
+undump mydmp3
+
+#unfix down force
+unfix pushdown
+
+#apply a force in the pos Y direction to the rod atoms to open
+fix pushdown gripperforce addforce 0.000 .04 0.000 
+dump mydmp4 all atom 1000 gripper_pickup_release.lammpstrj
+thermo 100
+run 4000 
+undump mydmp4
+
+#move way up
+fix movecenter_away_pY grippercenter move linear 0.0 1.5 0.0
+dump mydmp5 all atom 20000 gripper_pickup_move_away.lammpstrj
+thermo 100
+run 80000 
