@@ -1,0 +1,38 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_data 3bar_linkage.data
+
+# set groups
+group free type 1 2
+group anchor type 3 4   
+group moveme type 5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H  
+
+#freeze the sleeve anchor atoms
+fix anchorfix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#freeze move atoms for now
+fix movefreezefix moveme setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity moveme set 0.0 0.0 0.0
+
+#Minimize before bringing to temperature
+
+minimize 1.0e-4 1.0e-6 1000 10000
+
+# Equilibrate to 300K
+fix nve all nve
+timestep 0.00025
+
+# bring the temp of all free atoms to 90K
+fix freefix free temp/berendsen 90. 90. 0.25
+thermo 100 #print thermo data to the terminal every 100 steps
+run 4000 
+write_restart 3bar_linkage.init.restart
