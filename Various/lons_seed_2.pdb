@@ -1,0 +1,52 @@
+REMARK   5
+REMARK   5 Created 2025/03/30 05:41:38 PM UTC
+REMARK   5 with NanoEngineer-1 version 1.1.1.14 nanoengineer-1.com
+REMARK   5
+REMARK   6
+REMARK   6 This file generally complies with the PDB format version 2.3
+REMARK   6 Notes:
+REMARK   6
+REMARK   6 - Sets of atoms are treated as PDB chains terminated with TER
+REMARK   6   records. Since the number of atom sets can exceed the 95 possible
+REMARK   6   unique chains expressed in ATOM records by single non-control ASCII
+REMARK   6   characters, TER record serial numbers will be used to uniquely
+REMARK   6   identify atom sets/chains. Chain identifiers in ATOM records will
+REMARK   6   "roll-over" after every 95 chains.
+REMARK   6
+HETATM    1  C       A   1      -2.883   1.413  -0.426  1.00  0.00           C  
+HETATM    2  C       A   1      -4.133   0.656  -1.016  1.00  0.00           C  
+HETATM    3  C       A   1      -4.096  -0.808  -0.438  1.00  0.00           C  
+HETATM    4  C       A   1      -2.807  -1.501  -1.017  1.00  0.00           C  
+HETATM    5  C       A   1      -1.559  -0.744  -0.437  1.00  0.00           C  
+HETATM    6  C       A   1      -1.598   0.724  -1.017  1.00  0.00           C  
+HETATM    7  C       A   1      -2.877   1.393   1.156  1.00  0.00           C  
+HETATM    8  C       A   1      -4.096  -0.825   1.140  1.00  0.00           C  
+HETATM    9  C       A   1      -1.562  -0.769   1.141  1.00  0.00           C  
+HETATM   10  C       A   1      -4.119   0.626   1.710  1.00  0.00           C  
+HETATM   11  C       A   1      -1.599   0.682   1.707  1.00  0.00           C  
+HETATM   12  C       A   1      -2.814  -1.536   1.681  1.00  0.00           C  
+HETATM   13  C       A   1      -1.606   0.725  -2.598  1.00  0.00           C  
+HETATM   14  C       A   1      -4.131   0.647  -2.598  1.00  0.00           C  
+HETATM   15  C       A   1      -2.799  -1.512  -2.591  1.00  0.00           C  
+HETATM   16  C       A   1      -2.893   1.422  -3.146  1.00  0.00           C  
+HETATM   17  C       A   1      -1.562  -0.737  -3.145  1.00  0.00           C  
+HETATM   18  C       A   1      -4.076  -0.815  -3.151  1.00  0.00           C  
+TER       1          A
+CONECT    2    1
+CONECT    3    2
+CONECT    4    3
+CONECT    5    4
+CONECT    6    1    5
+CONECT    7    1
+CONECT    8    3
+CONECT    9    5
+CONECT   10    8    7
+CONECT   11    7    9
+CONECT   12    9    8
+CONECT   13    6
+CONECT   14    2
+CONECT   15    4
+CONECT   16   14   13
+CONECT   17   13   15
+CONECT   18   14   15
+END
