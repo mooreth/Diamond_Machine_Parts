@@ -1,0 +1,86 @@
+#there is a floating H2 from a modeling error, not realted to the manipulator
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart 3DOF_down_pause_bottom.init.restart
+
+# set groups
+group free type 1 2
+group leg1 type  3 4
+group leg2 type   5 6
+group leg3 type  7 8
+group thermo type 9 10
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H C H  
+
+
+#add the MD part to come to temp
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# keep the temp of all the  atoms except the motor atoms to 90K 
+fix thermo_free free temp/berendsen 90. 90. 0.25
+fix thermo_thermo thermo temp/berendsen 90. 90. 0.25
+
+#leg1 -Y 60 ang
+fix leg1_fix leg1 move linear 0.0 -1.0 0.0 
+
+#leg2 Y, X 60 ang
+fix leg2_fix leg2 move linear 0.865 0.500  0.0 
+
+#leg3 -X, Y 60ang
+fix leg3_fix leg3 move linear -0.865 0.500  0.0
+
+#might need to unfix the leg fixes and then stop them
+
+#output
+dump 3DOF_traveling_backup_dump all custom 1000 3DOF_traveling_backup3.lammpstrj id type x y z vx vy vz
+thermo 10
+run 120000 #60 pico seconds, velcoity magnitude is 1 ang/ps
+write_restart 3DOF_backup.init.restart
+
+unfix leg1_fix
+unfix leg2_fix
+unfix leg3_fix
+
+fix leg1fix2 leg1 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg1 set 0.0 0.0 0.0
+
+fix leg2fix2 leg2 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg2 set 0.0 0.0 0.0
+
+fix leg3fix2 leg3 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg3 set 0.0 0.0 0.0
+
+dump 3DOF_traveling_down_dump2 all custom 200 3DOF_traveling_down_2ndpause4.lammpstrj id type x y z vx vy vz
+thermo 10
+run 6000 #
+write_restart 3DOF_down_2ndpause_bottom.init.restart
+
+unfix leg1fix2
+unfix leg2fix2
+unfix leg3fix2
+
+#backdown again
+fix leg1_fix3 leg1 move linear 0.0 1.0 0.0 
+
+#leg2 -Y, -X 60 ang
+fix leg2_fix3 leg2 move linear -0.865 -0.500  0.0 
+
+#leg3 +X, -Y 60ang
+fix leg3_fix3 leg3 move linear 0.865 -0.500  0.0
+
+#output
+dump 3DOF_traveling_down_dump3 all custom 1000 3DOF_traveling_down2nd4.lammpstrj id type x y z vx vy vz
+thermo 10
+run 120000 #60 pico seconds, velcoity magnitude is 1 ang/ps
+write_restart 3DOF_back_down2nd_time.init.restart
+
+
+
+

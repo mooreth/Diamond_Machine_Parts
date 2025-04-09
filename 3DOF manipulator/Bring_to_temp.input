@@ -1,0 +1,48 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart Energy_min_3DOFT2.init.restart
+
+# set groups
+group free type 1 2
+group leg1 type  3 4
+group leg2 type   5 6
+group leg3 type  7 8
+group thermo type 9 10
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H C H  
+
+#freeze the motor atoms to come to temp 
+fix L1anchorfix leg1 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg1 set 0.0 0.0 0.0
+
+fix L2anchorfix leg2 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg2 set 0.0 0.0 0.0
+
+fix L3anchorfix leg3 setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity leg3 set 0.0 0.0 0.0
+
+#add the MD part to come to temp
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the motor atoms to 90K slowly
+fix thermo_free free temp/berendsen 0. 90. 0.25
+fix thermo_thermo thermo temp/berendsen 0. 90. 0.25
+
+
+#output
+dump 3DOF_temp_dump all custom 100 3DOF_temp.lammpstrj id type x y z vx vy vz
+thermo 10
+run 5000 #100 pico seconds
+write_restart 3DOF_T2_at_temp.init.restart
+
+
+#move positive X ang/picosecond and need to move 100 Ang
+#fix slide_fix moveme move linear 1.0 0.0 0.0 
