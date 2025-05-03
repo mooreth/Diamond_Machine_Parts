@@ -1,0 +1,37 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart plate_bearing_at_temp.init.restart
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group rotz type   5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H
+
+#add the MD part
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# free atoms at 90K
+fix thermo_free free temp/berendsen 90. 90. 0.25
+
+#anchor anchors
+fix anchorfix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+
+#rotate rotz rotor
+fix rotatehabst_fix rotz move rotate 0.4 1.519 0.122 0.0 0.0 1.0 125 
+
+#output
+dump habst_traj all atom 20000 dump_plate_bearing.lammpstrj
+#dump movie_dump all movie 1000 u575_spin.mpg type type size 640 480
+thermo 5000
+run 1000000 #250 picoseconds

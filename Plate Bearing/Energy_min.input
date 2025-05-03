@@ -1,0 +1,27 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_data plate_bearing.data
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group rotz type   5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H
+
+#freeze the ananchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+fix rotor1fix rotz setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity rotz set 0.0 0.0 0.0
+
+#Minimize before bringing to temperature and running motors
+
+minimize 1.0e-4 1.0e-6 1000 10000
+write_restart Energy_min_plate_bearing.init.restart
