@@ -1,9 +1,10 @@
 import math
 import os
-
-out_dir='D:/Diamond_Machine_Parts//Diamond_Machine_Parts/Classic Hydrocarbon Bearing/' #CHANGE THIS
+out_dir='C:/Users/moore/OneDrive/Desktop/SAMSON tutorials' #CHANGE THIS
+data_file_name ="HC_bearing.data"    #CHANGE THIS
 data_file_out='temp.txt' #this is a file that holds all the atoms before the header info is written to the final file which is another name down below
 output_data=os.path.join(out_dir,data_file_out)
+final_data = os.path.join(out_dir,data_file_name)
 
 atoms = {}
 group_list = []
@@ -68,15 +69,17 @@ def get_hi_and_low(x,y,z):
         Z_high_pad = math.floor(Z_high + padding)        
     return X_low_pad, X_high_pad, Y_low_pad, Y_high_pad, Z_low_pad, Z_high_pad 
 
+
+    ################## JIG GROUPS HERE ################
 # find groups 
 # getNodes returns an indexer that contains all nodes corresponding to a NSL string
 # (e.g., all nodes called "anchor"), and [0] returns the first element of that indexer
 anchor = SAMSON.getNodes('"anchor"')[0] # the anchor node in the document
-roty = SAMSON.getNodes('"roty"')[0] # the rotz node in the document
+motor = SAMSON.getNodes('"motor"')[0] # the rotz node in the document
 
 
 anchorNodes = anchor.getGroupNodes() # the nodes in the anchor group
-rotyNodes = roty.getGroupNodes() # the nodes in the rotz group
+motorNodes = motor.getGroupNodes() # the nodes in the rotz group
 # find all atoms
 
 atomIndexer = SAMSON.getNodes('node.type atom')
@@ -103,6 +106,7 @@ for atom in atomIndexer:
     z = SBQuantity.angstrom(atom.getZ()).value
     get_hi_and_low(x,y,z)
     
+
     group = 'free'
     #Jig one, an anchor jig
     if anchorNodes.hasNode(atom):
@@ -119,8 +123,8 @@ for atom in atomIndexer:
                 num_atom_types_and_mass.append(str(atom_mass))            
 
    #Jig two, a rotational group   
-    elif rotyNodes.hasNode(atom):
-        group = 'roty'    
+    elif motorNodes.hasNode(atom):
+        group = 'motor'    
         if symbol == "C":
             atom_type = 5
             if atom_type not in num_atom_types_and_mass:
@@ -185,8 +189,8 @@ zhilo = "   "+ str(dimensions[4]) + "          "+ str(dimensions[5]) + "      "+
 masses_header = " Masses" + "\n"
 atoms_header = " Atoms " + "#molecular"+ "\n"
 
-f = open('D:/Diamond_Machine_Parts//Diamond_Machine_Parts/Classic Hydrocarbon Bearing/Hydrocarbon_Bearing.data', "a") #CHANGE THIS
-#f = open(output_data, "a")
+#f = open('D:/Diamond_Machine_Parts//Diamond_Machine_Parts/Classic Hydrocarbon Bearing/Hydrocarbon_Bearing.data', "a") #CHANGE THIS
+f = open(final_data, "a")
 f.write(comment)
 f.write("\n")
 f.write(num_atoms)
