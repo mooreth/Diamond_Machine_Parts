@@ -74,12 +74,12 @@ def get_hi_and_low(x,y,z):
 # find groups 
 # getNodes returns an indexer that contains all nodes corresponding to a NSL string
 # (e.g., all nodes called "anchor"), and [0] returns the first element of that indexer
-anchor = SAMSON.getNodes('"anchor"')[0] # the anchor node in the document
-motor = SAMSON.getNodes('"motor"')[0] # the rotz node in the document
+anchor = SAMSON.getNodes('"anchor"')[0] # the anchor node in the document CHANGE FOR DIFFERENT JIGS
+motor = SAMSON.getNodes('"motor"')[0] # the rotz node in the document CHANGE FOR DIFFERENT JIGS
 
 
-anchorNodes = anchor.getGroupNodes() # the nodes in the anchor group
-motorNodes = motor.getGroupNodes() # the nodes in the rotz group
+anchorNodes = anchor.getGroupNodes() # the nodes in the anchor group CHANGE FOR DIFFERENT JIGS
+motorNodes = motor.getGroupNodes() # the nodes in the motor group CHANGE FOR DIFFERENT JIGS
 # find all atoms
 
 atomIndexer = SAMSON.getNodes('node.type atom')
@@ -107,10 +107,10 @@ for atom in atomIndexer:
     get_hi_and_low(x,y,z)
     
 
-    group = 'free'
+    group = 'free' #DON' CHANGE THIS LINE
     #Jig one, an anchor jig
     if anchorNodes.hasNode(atom):
-        group = 'anchor'
+        group = 'anchor'  #CHANGE FOR DIFFERENT JIGS
         if symbol == "C":
             atom_type = 3
             if atom_type not in num_atom_types_and_mass:
@@ -124,7 +124,7 @@ for atom in atomIndexer:
 
    #Jig two, a rotational group   
     elif motorNodes.hasNode(atom):
-        group = 'motor'    
+        group = 'motor'   #CHANGE FOR DIFFERENT JIGS   
         if symbol == "C":
             atom_type = 5
             if atom_type not in num_atom_types_and_mass:
@@ -180,7 +180,7 @@ for jigs in group_list:
     z_centroid = round(Z_SUM/ATOM_NUM, 3)
     print(jigs, "centroid", x_centroid, y_centroid, z_centroid)    
     
-comment = "hydrocarbon bearing" + "\n" #CHANGE THIS
+comment = "hydrocarbon bearing" + "\n" #CHANGE THIS for different files
 num_atoms = " " + str(atom_count) + " atoms" + "\n"
 atom_type_header = " " + str(int(num_atom_types)) + " atom types" + "\n"
 xhilo = "   "+ str(dimensions[0]) + "          "+ str(dimensions[1]) + "      "+ "xlo xhi"+  "\n"
@@ -189,7 +189,6 @@ zhilo = "   "+ str(dimensions[4]) + "          "+ str(dimensions[5]) + "      "+
 masses_header = " Masses" + "\n"
 atoms_header = " Atoms " + "#molecular"+ "\n"
 
-#f = open('D:/Diamond_Machine_Parts//Diamond_Machine_Parts/Classic Hydrocarbon Bearing/Hydrocarbon_Bearing.data', "a") #CHANGE THIS
 f = open(final_data, "a")
 f.write(comment)
 f.write("\n")
