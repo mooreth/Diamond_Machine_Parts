@@ -74,12 +74,12 @@ def get_hi_and_low(x,y,z):
 # find groups 
 # getNodes returns an indexer that contains all nodes corresponding to a NSL string
 # (e.g., all nodes called "anchor"), and [0] returns the first element of that indexer
-anchor = SAMSON.getNodes('"anchor"')[0] # the anchor node in the document CHANGE FOR DIFFERENT JIGS
-motor = SAMSON.getNodes('"motor"')[0] # the rotz node in the document CHANGE FOR DIFFERENT JIGS
-
+anchor = SAMSON.getNodes('"anchor" and node.type nodeGroup')[0] # the anchor node in the document CHANGE FOR DIFFERENT JIGS
+motor = SAMSON.getNodes('"motor" and node.type nodeGroup')[0] # the motor node in the document CHANGE FOR DIFFERENT JIGS
 
 anchorNodes = anchor.getGroupNodes() # the nodes in the anchor group CHANGE FOR DIFFERENT JIGS
 motorNodes = motor.getGroupNodes() # the nodes in the motor group CHANGE FOR DIFFERENT JIGS
+
 # find all atoms
 
 atomIndexer = SAMSON.getNodes('node.type atom')
