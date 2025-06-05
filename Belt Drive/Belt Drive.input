@@ -1,0 +1,40 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart conveyor_4sim.init.restart
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group P1 type   5 6
+group P2 type   7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H
+
+#freeze anchor atoms 
+fix freeze_anchor anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#add the MD part to come to temp
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# run at 90LK
+fix thermo_free free temp/berendsen 90. 90. 0.25
+
+#Rotate around z either way
+fix rotate_fix_p1 P1 move rotate 37.36 -13.55 1.874 0.0 0.0 1.0 250 #this is still 4 GHz
+
+fix rotate_fix_p2 P2 move rotate -47.519 -12.875 3.967 0.0 0.0 1.0 250 #this is still 4 GHz
+
+#output
+dump temp_dump all custom 1000 conveyor_spin.lammpstrj id type x y z
+thermo 500
+run 1000000 
+
+
