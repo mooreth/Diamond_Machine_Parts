@@ -1,0 +1,42 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_data yoke.data
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group moveme type   5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H 
+
+#freeze the motor and anchor atoms 
+fix freeze_motor moveme setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity moveme set 0.0 0.0 0.0
+
+fix freeze_anchor anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#Minimize before bringing to temperature and running motors
+
+minimize 1.0e-4 1.0e-6 1000 10000
+write_restart Energy_minimized_yoke_01.init.restart
+
+#add the MD part to come to temp
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the motor and anchor atoms to 90K slowly
+fix thermo_free free temp/berendsen 0. 90. 0.25
+
+#output
+dump temp_dump all custom 40 yoke_warming.lammpstrj id type x y z
+thermo 10
+run 3000 
+write_restart yoke_4sim.init.restart
+
