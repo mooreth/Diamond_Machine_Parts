@@ -1,0 +1,44 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart end_turn_one.restart
+
+# set groups
+group free type 1 2
+group in type  3 4
+group out type   5 6
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H 
+
+#add the MD part
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the top and bottom group to 6K
+fix thermo_free free temp/berendsen 90. 90. 0.25
+
+#VMD IMD connection. The VMd command is imd conenct localhost 5678
+#fix comm all imd 5678 unwrap off fscale 100.0 trate 10 nowait off
+
+#out centroid 1.513 59.519 -19.32
+#in centroid 0.955 -49.384 -18.936
+
+#freeze OUT so we can rotate the INPUT GEAR
+fix outfix out setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity out set 0.0 0.0 0.0
+
+#rotate the in gear 
+fix rotatein_fix1 in move rotate 0.955 -49.384 -18.936 0.0 1.0 0.0 125
+
+#output
+dump multiP_1stSPin all atom 2500 dump_multiplex_firstspin_spin.lammpstrj
+#dump movie_dump all movie 1000 u575_spin.mpg type type size 640 480
+thermo 5000
+run 500000
+write_restart end_spin_125.restart
