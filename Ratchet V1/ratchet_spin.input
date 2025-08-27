@@ -1,0 +1,43 @@
+
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart ratchet1_4SIM.init.restart 
+
+# set groups
+group free type 1 2
+group anchor type 3 4
+group rotz type 5 6
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H
+
+
+#freeze the cantilever anchor atoms
+fix anchor_fix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#add the MD part
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# bring the temp of all the  atoms except the top and bottom group to 300
+fix thermo_free free temp/berendsen 300. 300. 0.25
+
+#rotate around z
+fix rotate_fix rotz move rotate 21.172 29.608 63.686 0.0 0.0 1.0 1000 
+
+#VMD IMD connection. The VMd command is imd conenct localhost 5678
+#fix comm all imd 5678 unwrap off fscale 100.0 trate 10 nowait off
+
+#output
+dump ratchet_dump all atom 5000 ratchet_90deg_1gHz.lammpstrj
+
+thermo 10000
+run 4000000 #1000 pico seconds, 1 nanosecond, 1GHz frequency
+
