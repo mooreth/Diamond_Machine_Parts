@@ -1,0 +1,43 @@
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart position1.init.restart
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group pushy type   5 6
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H 
+
+#freeze the jig atoms atoms
+fix anchorfix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#Minimize before bringing to temperature
+
+minimize 1.0e-4 1.0e-6 1000 10000
+
+# Equilibrate to 90K
+fix nve all nve
+timestep 0.00025
+
+# bring the temp of all free atoms to 90K
+fix freefix free temp/berendsen 300. 300. 0.25
+
+#move negative  ang/picosecond and need to go 40A
+fix pushy_down pushy move linear 0.0 -0.25 0.0 
+
+#output
+dump run2_dump all custom 3000 step2_down.lammpstrj id type x y z vx vy vz
+
+thermo 2500
+run 640000 #160 pico seconds
+
+write_restart position2.init.restart
+
+
