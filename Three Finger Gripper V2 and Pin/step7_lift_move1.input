@@ -1,0 +1,34 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart step_6_waitb4lift.init.restart
+
+# set groups
+group free type 1 2
+group pinanchor type  3 4
+group posy type  5 6
+group center type  7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H
+
+# Equilibrate to 90K
+fix nve all nve
+timestep 0.00025
+fix freefix free temp/berendsen 90. 90. 0.25
+
+#move gripper parts 10 angstrom in positive Y
+
+fix center_down center move linear 0.0 0.10 0.00 
+fix posy_down posy move linear 0.0 0.10 0.00 
+
+dump up_part1 all custom 6666 step7_lift1.lammpstrj id type x y z vx vy vz
+
+thermo 500
+run 200000 #halfway
+
+write_restart step_7_lift1.init.restart

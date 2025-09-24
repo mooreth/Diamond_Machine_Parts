@@ -1,0 +1,43 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart step_5_grab.init.restart
+
+# set groups
+group free type 1 2
+group pinanchor type  3 4
+group posy type  5 6
+group center type  7 8
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H
+
+#freeze the pin anchor atoms atoms atoms
+fix anchorfix pinanchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity pinanchor set 0.0 0.0 0.0
+
+#freeze the center atoms
+fix centerfix center setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity center set 0.0 0.0 0.0
+
+#freeze the rods
+fix posyfix posy setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity posy set 0.0 0.0 0.0
+
+
+# Equilibrate to 90K
+fix nve all nve
+timestep 0.00025
+fix freefix free temp/berendsen 90. 90. 0.25
+
+
+dump waitb4 all custom 1000 step6_waitb4lift.lammpstrj id type x y z vx vy vz
+
+thermo 500
+run 20000
+
+write_restart step_6_waitb4lift.init.restart
