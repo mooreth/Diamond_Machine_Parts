@@ -1,0 +1,44 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart step_4_grab.init.restart
+
+# set groups
+group free type 1 2
+group pinanchor type  3 4
+group posy type  5 6
+group center type  7 8
+group base type 9 10
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H C H
+
+# Equilibrate to 90K
+fix nve all nve
+timestep 0.00025
+fix freefix free temp/berendsen 90. 90. 0.25
+
+
+#freeze the center atoms
+fix basefix base setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity base set 0.0 0.0 0
+
+
+#VMD IMD connection. The VMd command is imd conenct localhost 5678
+fix comm all imd 5678 unwrap off fscale 100.0 trate 10 nowait off
+
+#move gripper parts 48 angstrom in negative Y
+
+fix center_down center move linear 0.0 -0.20 0.00 
+fix posy_down posy move linear 0.0 -0.20 0.00 
+
+dump down_part1 all custom 10000 step7_insert.lammpstrj id type x y z vx vy vz
+
+thermo 500
+run 960000 
+
+write_restart step_7_insert.init.restart

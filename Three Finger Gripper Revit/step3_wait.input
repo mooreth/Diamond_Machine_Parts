@@ -1,0 +1,47 @@
+
+units metal
+atom_style molecular
+boundary s s s    #non-periodic
+
+# System definition
+read_restart step_2_down.init.restart
+
+# set groups
+group free type 1 2
+group pinanchor type  3 4
+group posy type  5 6
+group center type  7 8
+group base type 9 10 #keep it anchored
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C H C H C H
+
+#####Just run for a bit and let things ring out some
+
+#freeze the jig atoms atoms
+fix anchorfix pinanchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity pinanchor set 0.0 0.0 0.0
+
+fix anchorposy posy setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity posy set 0.0 0.0 0.0
+
+fix anchorcenter center setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity center set 0.0 0.0 0.0
+
+fix basefix base setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity base set 0.0 0.0 0.0
+
+# Equilibrate to 90K
+fix nve all nve
+timestep 0.00025
+fix freefix free temp/berendsen 90. 90. 0.25
+
+dump ring_out all custom 1000 step3_wait.lammpstrj id type x y z vx vy vz
+run 40000
+thermo 500
+
+undump ring_out
+
+write_restart step_3_wait.init.restart
