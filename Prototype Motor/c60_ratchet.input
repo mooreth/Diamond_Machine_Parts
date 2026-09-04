@@ -1,0 +1,37 @@
+
+units metal
+atom_style molecular
+boundary p p p     #periodic
+
+# System definition
+read_restart TEMP_c60ratchetOP.init.restart
+
+# set groups
+group free type 1 2
+group anchor type  3 4
+group negx type 5
+
+
+# Pair Coefficients
+pair_style	airebo 3.0 1 0
+pair_coeff * * CH.airebo C H C H C 
+
+#freeze the jig atoms atoms
+fix anchorfix anchor setforce 0.0 0.0 0.0 #first is ID = user-assigned name for the fix,  ID of the group of atoms
+velocity anchor set 0.0 0.0 0.0
+
+#add the MD part to come to temp
+fix nve all nve
+timestep 0.00025 #picoseconds/step = 1E-12 seconds
+
+# Set the simulation temp to 90K
+fix thermo_free free temp/berendsen 90. 90. 0.25
+
+fix move_fix negx move linear -1.0 0.0 0.0  #
+
+#output
+dump rotor_input_dump all custom 5000 c60ratchetOP.lammpstrj id type x y z 
+thermo 100
+run 1000000 #300 ang
+write_restart 
+
