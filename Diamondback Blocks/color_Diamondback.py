@@ -47,6 +47,12 @@ T-bracket 48734 aqua 0 .8 .688
 
 hex_axle_20nm 15481 aqua
 
+32T_turntable 91920  black 0 .0 0
+
+double_coupler 8497 pink .8 0 .4
+
+clutch_plates 14616 white 1,1,1
+
 '''
 
 
@@ -115,7 +121,14 @@ def color_large_groups():
             elif len(atoms) == 11882:
                 color = white
             elif len(atoms) == 15481:
-                color = aqua             
+                color = aqua
+            elif len(atoms) ==91920:
+                color = black 
+            elif len(atoms) ==8497:
+                color = pink
+            elif len(atoms) ==14616:
+                color = white             
+                
             
             
             for a in atoms:
@@ -175,7 +188,13 @@ with SAMSON.holding("Rename SGs with 10055 atoms"):
         elif sum(1 for _ in sg.getNodes('node.type atom')) == 11882:
             sg.name = '16_gear_hex'
         elif sum(1 for _ in sg.getNodes('node.type atom')) == 15481:
-            sg.name = 'hex_axle_20nm'              
+            sg.name = 'hex_axle_20nm'  
+        elif sum(1 for _ in sg.getNodes('node.type atom')) == 91920:
+            sg.name = '32T_turntable'
+        elif sum(1 for _ in sg.getNodes('node.type atom')) == 8497:
+            sg.name = 'double_coupler' 
+        elif sum(1 for _ in sg.getNodes('node.type atom')) == 14616:
+            sg.name = 'clutch_plates'         
             
             
 
