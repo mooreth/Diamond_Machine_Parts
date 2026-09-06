@@ -53,6 +53,8 @@ double_coupler 8497 pink .8 0 .4
 
 clutch_plates 14616 white 1,1,1
 
+small_axle 7825 violet .8 0 8
+
 '''
 
 
@@ -127,7 +129,9 @@ def color_large_groups():
             elif len(atoms) ==8497:
                 color = pink
             elif len(atoms) ==14616:
-                color = white             
+                color = white
+            elif len(atoms) ==7825:
+                color = violet                 
                 
             
             
@@ -194,7 +198,9 @@ with SAMSON.holding("Rename SGs with 10055 atoms"):
         elif sum(1 for _ in sg.getNodes('node.type atom')) == 8497:
             sg.name = 'double_coupler' 
         elif sum(1 for _ in sg.getNodes('node.type atom')) == 14616:
-            sg.name = 'clutch_plates'         
+            sg.name = 'clutch_plates'
+        elif sum(1 for _ in sg.getNodes('node.type atom')) == 7825:
+            sg.name = 'violet'             
             
             
 
